@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket Test</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>Socket.IO Test</h2>
+  <div id="log" style="font-family: monospace; white-space: pre-wrap;"></div>
+
+  <script>
+    const log = (msg) => {
+      document.getElementById('log').innerText += msg + '\n';
+      console.log(msg);
+    };
+
+    // PASTE YOUR JWT TOKEN HERE (from the login curl response)
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NmZkNTIwOC00YzJmLTQ3MDAtOWY2Yy0wNzJmNDc3Zjg2YTMiLCJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJpYXQiOjE3ODQyNzc4NDUsImV4cCI6MTc4NDg4MjY0NX0.9-aAWDH-2hIo4DqJmK2zxKUHoPr9x7CdSF1-46RK2gk";
+
+    const socket = io("http://localhost:3000", {
+      auth: { token },
+    });
+
+    socket.on("connect", () => log("✅ Connected: " + socket.id));
+    socket.on("disconnect", () => log("❌ Disconnected"));
+    socket.on("connect_error", (err) => log("⚠️ Connection error: " + err.message));
+    socket.on("user:online", (data) => log("User online: " + JSON.stringify(data)));
+    socket.on("user:offline", (data) => log("User offline: " + JSON.stringify(data)));
+    socket.on("typing:update", (data) => log("Typing update: " + JSON.stringify(data)));
+  </script>
+</body>
+</html>
