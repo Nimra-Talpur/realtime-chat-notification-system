@@ -9,7 +9,7 @@ import { AppModule } from './app.module';
 class RedisIoAdapter extends IoAdapter {
   private adapterConstructor!: ReturnType<typeof createAdapter>;
 
-async connectToRedis(): Promise<void> {
+  async connectToRedis(): Promise<void> {
     const pubClient = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
     const subClient = pubClient.duplicate();
 
@@ -34,6 +34,8 @@ async function bootstrap() {
   await redisIoAdapter.connectToRedis();
   app.useWebSocketAdapter(redisIoAdapter);
 
-  await app.listen(3000);
+  // Use Railway's dynamic port with a fallback to 3000 locally, and listen on '0.0.0.0' for Docker
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();
