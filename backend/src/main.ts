@@ -9,6 +9,10 @@ import { AppModule } from './app.module';
 class RedisIoAdapter extends IoAdapter {
   private adapterConstructor!: ReturnType<typeof createAdapter>;
 
+  constructor(app: any) {
+    super(app);
+  }
+
   async connectToRedis(): Promise<void> {
     const pubClient = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
     const subClient = pubClient.duplicate();
