@@ -1,0 +1,111 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------
+// USERS
+// ------------------------
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  avatarUrl String?
+  isOnline  Boolean  @default(false)
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sentMessages     Message[]          @relation("SentMessages")
+  chatRoomMembers  ChatRoomMember[]
+  notifications    Notification[]
+  connections      UserConnection[]
+
+  @@map("users")
+}
+
+// ------------------------
+// CHAT ROOMS (group or 1-on-1)
+// ------------------------
+model ChatRoom {
+  id        String   @id @default(uuid())
+  name      String? // null for 1-on-1 DMs, required for group rooms
+  isGroup   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  ChatRoomMember[]
+  messages Message[]
+
+  @@map("chat_rooms")
+}
+
+// Join table: which users belong to which chat room
+model ChatRoomMember {
+  id         String   @id @default(uuid())
+  userId     String
+  chatRoomId String
+  joinedAt   DateTime @default(now())
+  isTyping   Boolean  @default(false)
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chatRoomId])
+  @@map("chat_room_members")
+}
+
+// ------------------------
+// MESSAGES
+// ------------------------
+model Message {
+  id         String   @id @default(uuid())
+  content    String
+  senderId   String
+  chatRoomId String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// ------------------------
+// NOTIFICATIONS
+// ------------------------
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String // recipient
+  type      String // e.g. "NEW_MESSAGE", "MENTION", "SYSTEM"
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  metadata  Json? // optional extra data (e.g. { chatRoomId, messageId })
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ------------------------
+// USER CONNECTIONS (tracks active socket sessions)
+// ------------------------
+model UserConnection {
+  id         String   @id @default(uuid())
+  userId     String
+  socketId   String   @unique
+  connectedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_connections")
+}

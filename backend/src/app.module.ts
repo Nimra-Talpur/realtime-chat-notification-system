@@ -13,8 +13,7 @@ import { NotificationsModule } from './notifications/notifications.module';
   imports: [
     BullModule.forRoot({
       connection: {
-        host: 'localhost',
-        port: 6379,
+        url: process.env.REDIS_URL || 'redis://localhost:6379',
       },
     }),
     AuthModule,

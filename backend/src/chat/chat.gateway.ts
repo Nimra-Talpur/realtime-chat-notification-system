@@ -57,7 +57,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // Mark user online
-      await this.prisma.user.update({
+      await this.prisma.user.updateMany({
         where: { id: payload.sub },
         data: { isOnline: true },
       });
@@ -91,7 +91,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     if (remaining === 0) {
-      await this.prisma.user.update({
+      await this.prisma.user.updateMany({
         where: { id: user.userId },
         data: { isOnline: false, lastSeen: new Date() },
       });

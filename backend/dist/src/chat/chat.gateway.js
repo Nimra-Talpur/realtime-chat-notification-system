@@ -50,7 +50,7 @@ let ChatGateway = class ChatGateway {
                     socketId: client.id,
                 },
             });
-            await this.prisma.user.update({
+            await this.prisma.user.updateMany({
                 where: { id: payload.sub },
                 data: { isOnline: true },
             });
@@ -74,7 +74,7 @@ let ChatGateway = class ChatGateway {
             where: { userId: user.userId },
         });
         if (remaining === 0) {
-            await this.prisma.user.update({
+            await this.prisma.user.updateMany({
                 where: { id: user.userId },
                 data: { isOnline: false, lastSeen: new Date() },
             });

@@ -25,8 +25,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             bullmq_1.BullModule.forRoot({
                 connection: {
-                    host: 'localhost',
-                    port: 6379,
+                    url: process.env.REDIS_URL || 'redis://localhost:6379',
                 },
             }),
             auth_module_1.AuthModule,
